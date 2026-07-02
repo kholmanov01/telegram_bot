@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text
+from sqlalchemy import BigInteger, DateTime, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base, TimestampMixin
@@ -33,7 +33,7 @@ class AuditLog(Base, TimestampMixin):
         ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
     )
     actor_telegram_id: Mapped[Optional[int]] = mapped_column(
-        Integer, nullable=True, index=True
+        BigInteger, nullable=True, index=True
     )
 
     # Optional target entity (polymorphic by string type).

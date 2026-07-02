@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
-from sqlalchemy import DateTime, ForeignKey, String, Text
+from sqlalchemy import BigInteger, DateTime, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.base import Base, TimestampMixin
@@ -36,7 +36,7 @@ class Notification(Base, TimestampMixin):
         ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True
     )
     recipient_telegram_id: Mapped[Optional[int]] = mapped_column(
-        nullable=True, index=True
+        BigInteger, nullable=True, index=True
     )
 
     task_id: Mapped[Optional[int]] = mapped_column(

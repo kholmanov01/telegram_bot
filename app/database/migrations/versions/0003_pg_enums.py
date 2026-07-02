@@ -25,7 +25,12 @@ def upgrade() -> None:
     uses ``str, Enum`` (which SQLAlchemy stores as the enum *name*). Postgres
     requires the enum type to exist before it can be referenced in a cast
     (``$1::taskstatus``), so we create the types here and alter the columns.
+
+    Columns with a server_default need the default dropped before the type
+    change and re-added afterwards (Postgres can't auto-cast the default).
     """
+    bind = op.get_bind()
+
     # 1. Create the enum types.
     taskstatus = sa.Enum(
         "pending", "completed", "expired", "archived",
@@ -39,40 +44,47 @@ def upgrade() -> None:
         "super_admin", "employee",
         name="userrole",
     )
-    taskstatus.create(op.get_bind(), checkfirst=True)
-    taskpriority.create(op.get_bind(), checkfirst=True)
-    userrole.create(op.get_bind(), checkfirst=True)
+    auditaction = sa.Enum(
+        "employee_login", "employee_registered", "employee_created",
+        "task_created", "task_updated", "task_completed", "task_expired",
+        "task_archived", "task_restored", "notification_sent",
+        "settings_updated", "login_failed",
+        name="auditaction",
+    )
+    taskstatus.create(bind, checkfirst=True)
+    taskpriority.create(bind, checkfirst=True)
+    userrole.create(bind, checkfirst=True)
+    auditaction.create(bind, checkfirst=True)
 
-    # 2. Convert the VARCHAR columns to the enum types (USING the existing
-    #    string value as the enum value).
+    # 2. Drop server_defaults that would block the type cast, alter type, then
+    #    restore a sensible default.
+    # tasks.status (default 'pending')
+    op.alter_column("tasks", "status", server_default=None, existing_type=sa.String(32))
     op.alter_column(
-        "tasks", "status",
-        type_=taskstatus,
-        existing_type=sa.String(length=32),
+        "tasks", "status", type_=taskstatus, existing_type=sa.String(32),
         postgresql_using="status::text::taskstatus",
     )
+    op.alter_column("tasks", "status", server_default="pending", existing_type=taskstatus)
+
+    # tasks.priority (default 'medium')
+    op.alter_column("tasks", "priority", server_default=None, existing_type=sa.String(32))
     op.alter_column(
-        "tasks", "priority",
-        type_=taskpriority,
-        existing_type=sa.String(length=32),
+        "tasks", "priority", type_=taskpriority, existing_type=sa.String(32),
         postgresql_using="priority::text::taskpriority",
     )
+    op.alter_column("tasks", "priority", server_default="medium", existing_type=taskpriority)
+
+    # users.role (default 'employee')
+    op.alter_column("users", "role", server_default=None, existing_type=sa.String(32))
     op.alter_column(
-        "users", "role",
-        type_=userrole,
-        existing_type=sa.String(length=32),
+        "users", "role", type_=userrole, existing_type=sa.String(32),
         postgresql_using="role::text::userrole",
     )
+    op.alter_column("users", "role", server_default="employee", existing_type=userrole)
+
+    # audit_logs.action (no default — just convert)
     op.alter_column(
-        "audit_logs", "action",
-        type_=sa.Enum(
-            "employee_login", "employee_registered", "employee_created",
-            "task_created", "task_updated", "task_completed", "task_expired",
-            "task_archived", "task_restored", "notification_sent",
-            "settings_updated", "login_failed",
-            name="auditaction",
-        ),
-        existing_type=sa.String(length=32),
+        "audit_logs", "action", type_=auditaction, existing_type=sa.String(32),
         postgresql_using="action::text::auditaction",
     )
 

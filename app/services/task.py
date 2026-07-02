@@ -175,7 +175,7 @@ class TaskService:
                     "task_id": task.id,
                     "action": "completed",
                     "actor_id": user_id,
-                    "from_status": from_status.value,
+                    "from_status": getattr(from_status, "value", str(from_status)),
                     "to_status": TaskStatus.COMPLETED.value,
                     "message": note or "Vazifa bajarildi",
                     "occurred_at": now_utc(),

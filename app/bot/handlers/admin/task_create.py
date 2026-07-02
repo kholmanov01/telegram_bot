@@ -160,11 +160,13 @@ async def _proceed_to_employee_selection(
         return
 
     if not employees:
-        await message.answer(
-            no_tasks() + "\n\nIltimos, avval xodim qo'shing."
-        )
         await state.clear()
-        await message.answer(cancelled(), reply_markup=admin_menu())
+        await message.answer(
+            "👥 <b>Hozircha xodimlar yo'q.</b>\n\n"
+            "Vazifa berish uchun avval xodim qo'shishingiz kerak.\n\n"
+            "👇 <b>👥 Xodimlar</b> tugmasini bosing → <b>➕ Yangi xodim qo'shish</b>",
+            reply_markup=admin_menu(),
+        )
         return
 
     await state.set_state(TaskCreationStates.waiting_employee)

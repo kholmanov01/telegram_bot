@@ -28,11 +28,10 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 # Copy project source
 COPY . .
 
-# Create directories for logs
-RUN mkdir -p /app/logs
-
-# Non-root user for security
-RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
+# Create non-root user first, then create log/export dirs owned by it.
+RUN useradd -m -u 1000 appuser \
+    && mkdir -p /app/logs /app/exports \
+    && chown -R appuser:appuser /app
 USER appuser
 
 # Healthcheck: ensure the process is alive

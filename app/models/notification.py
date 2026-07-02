@@ -26,8 +26,8 @@ class Notification(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
-    type: Mapped[NotificationType] = mapped_column(nullable=False, index=True)
-    status: Mapped[NotificationStatus] = mapped_column(
+    type: Mapped[NotificationType] = mapped_column(String(32), nullable=False, index=True)
+    status: Mapped[NotificationStatus] = mapped_column(String(32), 
         default=NotificationStatus.PENDING, nullable=False, index=True
     )
 

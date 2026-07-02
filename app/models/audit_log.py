@@ -26,7 +26,7 @@ class AuditLog(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
 
-    action: Mapped[AuditAction] = mapped_column(nullable=False, index=True)
+    action: Mapped[AuditAction] = mapped_column(String(32), nullable=False, index=True)
 
     # Who performed the action.
     actor_id: Mapped[Optional[int]] = mapped_column(

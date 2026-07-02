@@ -29,10 +29,10 @@ class Task(Base, TimestampMixin):
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     status: Mapped[TaskStatus] = mapped_column(
-        default=TaskStatus.PENDING, nullable=False, index=True
+        String(32), default=TaskStatus.PENDING, nullable=False, index=True
     )
     priority: Mapped[TaskPriority] = mapped_column(
-        default=TaskPriority.MEDIUM, nullable=False, index=True
+        String(32), default=TaskPriority.MEDIUM, nullable=False, index=True
     )
 
     # Deadline stored as timezone-aware UTC.

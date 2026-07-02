@@ -40,7 +40,7 @@ class User(Base, TimestampMixin):
     language_code: Mapped[Optional[str]] = mapped_column(String(16), nullable=True)
 
     # Authorization.
-    role: Mapped[UserRole] = mapped_column(
+    role: Mapped[UserRole] = mapped_column(String(32), 
         default=UserRole.EMPLOYEE, nullable=False, index=True
     )
     is_active: Mapped[bool] = mapped_column(default=True, nullable=False)

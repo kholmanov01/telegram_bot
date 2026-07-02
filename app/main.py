@@ -172,6 +172,9 @@ if __name__ == "__main__":
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
         pass
-    except Exception:  # pragma: no cover
-        logger.exception("Fatal error in main loop.")
+    except Exception as exc:  # pragma: no cover
+        import traceback
+        # Print the full traceback to stderr so it always shows in `docker logs`.
+        traceback.print_exc()
+        logger.error("Fatal error in main loop: {}: {}", type(exc).__name__, exc)
         sys.exit(1)
